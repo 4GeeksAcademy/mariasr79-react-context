@@ -1,20 +1,17 @@
-import React, { Component } from "react";
+import React from "react";
 
-export const ContactCard = () => (
+const ContactCard = ({ contact, onDelete }) => {
+    return (
+        <div className="card">
+            <div className="card-body">
+                <h5 className="card-title">{contact.name}</h5>
+                <p className="card-text">Phone: {contact.phone}</p>
+                <p className="card-text">Email: {contact.email}</p>
+                <p className="card-text">Address: {contact.address}</p>
+                <button className="btn btn-danger" onClick={() => onDelete(contact.id)}>Delete</button>
+            </div>
+        </div>
+    );
+};
 
-  <div className="card" style="width: 18rem;">
-    <img src="https://siliconemusic.com/slm/wp-content/uploads/2016/12/artist-Alejandro-Sanz.png" className="rounded-circle" alt="Imagen de Alejandro Sanz" />
-    <div className="card-body">
-      <h5 className="card-title">Card title</h5>
-      <p className="card-text">
-        Name:
-        <FontAwesomeIcon icon="fa-solid fa-location-dot" />
-        Email:
-        Address:
-      </p>
-
-    </div>
-  
-</div >
-
-)
+export default ContactCard;
