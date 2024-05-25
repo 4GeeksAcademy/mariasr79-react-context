@@ -5,84 +5,98 @@ const getState = ({ getStore, getActions, setStore }) => {
         },
         actions: {
             getUsers: async () => {
-                try {
-                    const response = await fetch("https://playground.4geeks.com/contact/agendas/mariasr79/contacts");
-                    const userJson = await response.json();
+                const agendas = await fetch("https://playground.4geeks.com/contact/agendas");
+                    const agendasJson = await agendas.json();
             
-                    if (!response.ok) {
-                        createUser();
-                        return;
-                    }
-            
-                    setStore({ users: userJson });
-                    return userJson;
-                } catch (error) {
-                    console.error("Error fetching users:", error);
-                }
+                    setStore({ agendas: agendasJson.agendas });
             },
             
-            createContact: async (name, phone, email, address) => {
+            postAgenda: async (agendasslug) => {
+                const newAgenda = await fetch(
+                  `https://playground.4geeks.com/contact/agendas/${agendasslug}`,
+                  {
+                    method: "POST",
+                  }
+                );
+                if (newAgenda.ok) {
+                  const agendas = getStore().agendas;
+                  const newAgendaJson = await newAgenda.json();
+                  console.log("Se ha creado la nueva agenda de contactos con exito");
+                  const newAgendas = [...agendas, newAgendaJson];
+                  setStore({ agendas: newAgendas });
+                } else {
+                  console.log("No se pudo crear la agenda");
+                }
+              },
+              getAgenda: async (agendasslug) => {
+                const detalleAgenda = await fetch(
+                  `https://playground.4geeks.com/contact/agendas/${agendasslug}`
+                );
+                const detalleAgendaJson = await detalleAgenda.json();
+                return detalleAgendaJson;
+              },
+              postContacto: async (newContact) => {
                 try {
-                    const response = await fetch("https://playground.4geeks.com/apis/contact/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            full_name: name,
-                            phone: phone,
-                            email: email,
-                            address: address,
-                            agenda_slug: "mariasr79" 
-                        })
-                    });
-            
-                    if (!response.ok) {
-                        throw new Error('Error en la petición');
+                  const response = await fetch(
+                    `https://playground.4geeks.com/contact/agendas/Dayloc/contacts`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify(newContact),
                     }
-            
-                    const newContact = await response.json();
-                    
+                  );
+                  if (response.ok) {
+                    const addedContact = await response.json();
                     const store = getStore();
-                    setStore({ contacts: [...store.contacts, newContact] });
-            
-                    return newContact;
-                } catch (error) {
-                    console.error("Error creating contact:", error);
-                }
-            },
-            
-            const response = await fetch(`https://playground.4geeks.com/contact/docs//agendas/{slug}/contacts/{contact_id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    fullName: name,
-                    phone: phone,
-                    email: email,
-                    address: address,
-                    agenda_slug: "mariasr79"
-                })
-            }),
-            
-            deleteContact: async (id) => {
-                try {
-                    const response = await fetch(`https://playground.4geeks.com/contact/docs/agendas/{slug}`, {
-                        method: "DELETE"
+                    setStore({
+                      contacts: [...store.contacts, addedContact],
                     });
-            
-                    if (!response.ok) {
-                        throw new Error('Error en la petición');
-                    }
-                    getActions().getUsers();
+                  } else {
+                    console.error("Error al crear contacto");
+                  }
                 } catch (error) {
-                    console.error("Error deleting contact:", error);
+                  console.error("Error agregando contact:", error);
                 }
-            }
-            
-        }
-    };
-};
-
+              },
+              deleteContact: async (id) => {
+                try {
+                  const response = await fetch(
+                    `https://playground.4geeks.com/contact/agendas/Dayloc/contacts/${id}`,
+                    {
+                      method: "DELETE",
+                    }
+                  );
+                  if (response.ok) {
+                    const store = getStore();
+                    const updatedContacts = store.contacts.filter(
+                      (contact) => contact.id !== id
+                    );
+                    setStore({ contacts: updatedContacts });
+                  } else {
+                    console.error("Failed to delete contact");
+                  }
+                } catch (error) {
+                  console.error("Error deleting contact:", error);
+                }
+              },
+              getContacts: async (agendasslug) => {
+                try {
+                  const response = await fetch(
+                    `https://playground.4geeks.com/contact/agendas/Dayloc/contacts`
+                  );
+                  if (response.ok) {
+                    const data = await response.json();
+                    setStore({ contacts: data });
+                  } else {
+                    console.error("Failed to fetch contacts");
+                  }
+                } catch (error) {
+                  console.error("Error fetching contacts:", error);
+                }
+              },
+            },
+          };
+        };
 export default getState;
